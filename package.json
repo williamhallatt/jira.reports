@@ -1,0 +1,31 @@
+{
+  "name": "velocity",
+  "version": "1.0.0",
+  "description": "Retrieves velocity information from JIRA Greenhopper (not intended for public consumption) for the board provided",
+  "main": "index.js",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "chalk": "^3.0.0",
+    "dotenv": "^8.2.0",
+    "yargs": "^15.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^12.12.31",
+    "@types/yargs": "^15.0.4",
+    "parcel-bundler": "^1.12.4",
+    "tslint": "^6.1.0",
+    "typescript": "^3.8.3"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "parcel index.ts",
+    "clean": "rm -rf ./dist ./.cache",
+    "build": "parcel build index.ts --target node",
+    "start": "npm run build && NODE_ENV=production node ./dist/index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "browserslist": [
+    "last 2 Chrome versions"
+  ]
+}
