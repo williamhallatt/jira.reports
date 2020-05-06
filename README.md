@@ -55,16 +55,23 @@ npm run build
 Usage: index.js [options]
 
 Options:
-  --version      Show version number                                   [boolean]
-  -b, --board    The board ID (rapidViewId) of the board to query
+  --version       Show version number                                  [boolean]
+  -b, --board     The board ID (rapidViewId) of the board to query
                                                              [number] [required]
-  -s, --sprints  Number of sprints to query (most recent)           [default: 5]
-  -d, --data     Output file for CSV data (incl path)  [default: "./report.csv"]
-  --count-all    Disregards WHEN an issue was added to the sprint, counts ALL
-                 issues in sprint as committed                         [boolean]
-  --debug        Passing the debug option writes ALL issue and sprint report
-                 information to debug.json                             [boolean]
-  -h, --help     Show help                                             [boolean]
+  -s, --sprints   Number of sprints to query (most recent)          [default: 5]
+  -v, --velocity  Output file for velocity CSV data (incl path)
+                                                     [default: "./velocity.csv"]
+  -e, --effort    Output file for effort split CSV data (incl path)
+                                                       [default: "./effort.csv"]
+  --count-all     Disregards WHEN an issue was added to the sprint, counts ALL
+                  issues in sprint as committed                        [boolean]
+  --debug         Passing the debug option writes ALL issue and sprint report
+                  information to debug.json                            [boolean]
+  -h, --help      Show help                                            [boolean]
+
+Examples:
+  index.js -b 10911 -s 5 -v velocity.csv    writes sprint velocity to file
+  -e effort.csv --count-all --debug
 ```
 
 ### Additional Information
@@ -76,6 +83,13 @@ Options:
 The board ID can be obtained from your project's URL:
 
 ![boardId](./img/rapidview.png)
+
+```bash
+-e, --effort    Output file for effort split CSV data (incl path)
+                                                       [default: "./effort.csv"]
+```
+
+"Effort split" writes the issue types for each sprint, with their corresponding estimates, as csv (`sprint, type, estimate`) to file.
 
 ```bash
 --count-all

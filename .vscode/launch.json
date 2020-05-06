@@ -11,7 +11,17 @@
       "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}/dist/index.js",
       "env": { "NODE_ENV": "production" },
-      "args": ["-p", "AUTHZ"],
+      "args": [
+        "-b",
+        "10911",
+        "-s",
+        "5",
+        "-v",
+        "./velocity.csv",
+        "-e",
+        "./effort.csv",
+        "--count-all"
+      ],
       "outFiles": ["${workspaceFolder}/**/*.js"],
       "preLaunchTask": "npm: build"
     }

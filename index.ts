@@ -16,7 +16,7 @@ dotenv.config();
 const argv = yargs
   .usage('Usage: $0 [options]')
   .example(
-    '$0 -b 10911 -s 5 -d data.csv --count-all --debug',
+    '$0 -b 10911 -s 5 -v velocity.csv -e effort.csv --count-all --debug',
     'writes sprint velocity to file'
   )
   .option('board', { type: 'number' })
@@ -27,10 +27,14 @@ const argv = yargs
   .nargs('s', 1)
   .describe('s', 'Number of sprints to query (most recent)')
   .default('s', 5)
-  .alias('d', 'data')
-  .nargs('d', 1)
-  .describe('d', 'Output file for CSV data (incl path)')
-  .default('d', './report.csv')
+  .alias('v', 'velocity')
+  .nargs('v', 1)
+  .describe('v', 'Output file for velocity CSV data (incl path)')
+  .default('v', './velocity.csv')
+  .alias('e', 'effort')
+  .nargs('e', 1)
+  .describe('e', 'Output file for effort split CSV data (incl path)')
+  .default('e', './effort.csv')
   .boolean('count-all')
   .describe(
     'count-all',
@@ -47,9 +51,10 @@ const argv = yargs
 
 log.info(`Board ID: [${argv.b}]`);
 log.info(`Number of Sprints to Retrieve: [${argv.s}]`);
-log.info(`Data File: [${argv.d}]`);
+log.info(`Velocity Report File: [${argv.v}]`);
+log.info(`Effort Breakdown Report File: [${argv.e}]`);
 
-const committed = (report: SprintReport, countAll: boolean): any => {
+const commitment = (report: SprintReport, countAll: boolean): number => {
   let allIssues = [
     ...report.contents.completedIssues.map(
       (issue: CompletedIssue): IssueEstimate => {
@@ -89,6 +94,51 @@ const committed = (report: SprintReport, countAll: boolean): any => {
     .reduce((accumulator: number, current: number) => accumulator + current, 0);
 };
 
+const writeVelocityReport = (reports: SprintReport[]) => {
+  const summary = reports.map((report: SprintReport) => {
+    return {
+      sprint: report.sprint.name,
+      committed: commitment(report, !!argv['count-all']),
+      completed: report.contents.completedIssuesEstimateSum.value,
+    };
+  });
+  const csv: string = convertToCSV(summary);
+  writeFile(argv.v, csv, 'utf8', (err) => {
+    if (err) {
+      return log.error(err);
+    }
+  });
+};
+
+const writeEffortBreakdownReport = (reports: SprintReport[]) => {
+  const allCompleted = reports
+    .map((report: SprintReport) => {
+      return report.contents.completedIssues.map((issue: CompletedIssue) => {
+        return {
+          sprint: report.sprint.name,
+          type: issue.typeName,
+          estimate: issue.currentEstimateStatistic.statFieldValue.value || 0,
+        };
+      });
+    })
+    .reduce(
+      (
+        obj: { sprint: string; type: string; estimate: number }[],
+        item: { sprint: string; type: string; estimate: number }[]
+      ) => {
+        return obj.concat(item);
+      },
+      []
+    );
+
+  const csv: string = convertToCSV(allCompleted);
+  writeFile(argv.e, csv, 'utf8', (err) => {
+    if (err) {
+      return log.error(err);
+    }
+  });
+};
+
 async function main(boardId: number): Promise<void> {
   try {
     log.info(`Requesting sprints for ${boardId}...`);
@@ -126,7 +176,11 @@ async function main(boardId: number): Promise<void> {
       reports.push(report);
     }
 
-    log.info(`Writing reports to file...`);
+    log.info(`Writing velocity reports to file...`);
+    writeVelocityReport(reports);
+
+    log.info(`Writing effort breakdown to file...`);
+    writeEffortBreakdownReport(reports);
 
     if (argv.debug) {
       writeFile('debug.json', JSON.stringify(reports), 'utf8', (err) => {
@@ -135,22 +189,6 @@ async function main(boardId: number): Promise<void> {
         }
       });
     }
-
-    const summary = reports.map((report: SprintReport) => {
-      return {
-        sprint: report.sprint.name,
-        committed: committed(report, !!argv['count-all']),
-        completed: report.contents.completedIssuesEstimateSum.value,
-      };
-    });
-
-    const csv: string = convertToCSV(summary);
-
-    writeFile(argv.d, csv, 'utf8', (err) => {
-      if (err) {
-        return log.error(err);
-      }
-    });
   } catch (err) {
     handleError(err);
   }
