@@ -10,7 +10,7 @@
     "yargs": "^15.4.1"
   },
   "devDependencies": {
-    "@types/node": "^12.12.54",
+    "@types/node": "^12.12.62",
     "@types/yargs": "^15.0.5",
     "parcel-bundler": "^1.12.4",
     "tslint": "^6.1.3",
