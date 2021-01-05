@@ -4,7 +4,7 @@
   "description": "Retrieves velocity information from JIRA Greenhopper (not intended for public consumption) for the board provided",
   "main": "index.js",
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "chalk": "^3.0.0",
     "dotenv": "^8.2.0",
     "yargs": "^15.4.1"
